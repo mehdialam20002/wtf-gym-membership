@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
+const { addDuration, getDurationBetween, isTestMode, getTimeUnit } = require('../utils/timeHelper');
 
 const prisma = new PrismaClient();
 
@@ -40,7 +41,7 @@ const requestFreeze = async (req, res) => {
       return res.status(400).json({ error: 'Freeze is not available for this plan' });
     }
 
-    // TC7: Check freeze count limit
+    // TC7: Check freeze count limit (count is incremented at creation, never returned)
     const usedCount = membership.totalFreezeCountUsed;
     if (usedCount >= maxCount) {
       return res.status(400).json({
@@ -49,7 +50,7 @@ const requestFreeze = async (req, res) => {
       });
     }
 
-    // TC7: Check freeze days limit
+    // TC7: Check freeze days limit (days are deducted at creation, never returned)
     const usedDays = membership.totalFreezeDaysUsed;
     const remainingDays = maxDays - usedDays;
     if (freezeDays > remainingDays) {
@@ -59,15 +60,24 @@ const requestFreeze = async (req, res) => {
       });
     }
 
-    const freezeStart = new Date(startStr);
+    let freezeStart = new Date(startStr);
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
 
-    // Start date must be today or future
-    const freezeStartClean = new Date(freezeStart);
-    freezeStartClean.setHours(0, 0, 0, 0);
-    if (freezeStartClean < now) {
-      return res.status(400).json({ error: 'Freeze start date cannot be in the past' });
+    if (isTestMode()) {
+      // In test mode, same calendar day = immediate freeze (use current time)
+      const sameDay = freezeStart.toDateString() === now.toDateString();
+      if (sameDay) {
+        freezeStart = new Date(now); // start from now, not midnight
+      } else if (freezeStart < now) {
+        return res.status(400).json({ error: 'Freeze start date cannot be in the past' });
+      }
+    } else {
+      now.setHours(0, 0, 0, 0);
+      const freezeStartClean = new Date(freezeStart);
+      freezeStartClean.setHours(0, 0, 0, 0);
+      if (freezeStartClean < now) {
+        return res.status(400).json({ error: 'Freeze start date cannot be in the past' });
+      }
     }
 
     // TC10: Freeze start must be before membership end
@@ -75,8 +85,7 @@ const requestFreeze = async (req, res) => {
       return res.status(400).json({ error: 'Freeze start date must be before membership expiry' });
     }
 
-    const freezeEnd = new Date(freezeStart);
-    freezeEnd.setDate(freezeEnd.getDate() + freezeDays);
+    const freezeEnd = addDuration(freezeStart, freezeDays);
 
     // TC6: Check overlapping freezes (exclusive boundary - ending on same day as start is OK)
     const overlapping = await prisma.membershipFreeze.findFirst({
@@ -93,7 +102,14 @@ const requestFreeze = async (req, res) => {
     }
 
     // Determine status: if start is today -> ACTIVE, else SCHEDULED
-    const isToday = freezeStartClean.getTime() === now.getTime();
+    let isToday;
+    if (isTestMode()) {
+      isToday = freezeStart.toDateString() === now.toDateString();
+    } else {
+      const freezeStartClean = new Date(freezeStart);
+      freezeStartClean.setHours(0, 0, 0, 0);
+      isToday = freezeStartClean.getTime() === now.getTime();
+    }
     const status = isToday ? 'ACTIVE' : 'SCHEDULED';
 
     // Create freeze record
@@ -109,16 +125,15 @@ const requestFreeze = async (req, res) => {
       },
     });
 
-    // If freeze starts today, update membership status to FROZEN
-    if (isToday) {
-      await prisma.membership.update({
-        where: { id: membershipId },
-        data: {
-          status: 'FROZEN',
-          totalFreezeCountUsed: { increment: 1 },
-        },
-      });
-    }
+    // Always increment freeze count + days at creation (once used, never returned)
+    await prisma.membership.update({
+      where: { id: membershipId },
+      data: {
+        status: isToday ? 'FROZEN' : undefined,
+        totalFreezeCountUsed: { increment: 1 },
+        totalFreezeDaysUsed: { increment: freezeDays },
+      },
+    });
 
     res.status(201).json({
       freeze,
@@ -195,11 +210,10 @@ const unfreeze = async (req, res) => {
     }
 
     const now = new Date();
-    const actualDays = Math.ceil((now - activeFreeze.freezeStartDate) / (1000 * 60 * 60 * 24));
+    const actualDays = getDurationBetween(activeFreeze.freezeStartDate, now);
 
     // TC4: Extend membership end date by actual freeze days
-    const newEndDate = new Date(membership.endDate);
-    newEndDate.setDate(newEndDate.getDate() + actualDays);
+    const newEndDate = addDuration(membership.endDate, actualDays);
 
     // Update freeze record
     await prisma.membershipFreeze.update({
@@ -211,13 +225,12 @@ const unfreeze = async (req, res) => {
       },
     });
 
-    // Update membership
+    // Update membership (days already deducted at creation, no increment needed)
     const updatedMembership = await prisma.membership.update({
       where: { id: membershipId },
       data: {
         status: 'ACTIVE',
         endDate: newEndDate,
-        totalFreezeDaysUsed: { increment: actualDays },
       },
       include: {
         plan: { select: { name: true, maxFreezeCount: true, maxFreezeDays: true } },
@@ -335,10 +348,9 @@ const adminForceUnfreeze = async (req, res) => {
     }
 
     const now = new Date();
-    const actualDays = Math.ceil((now - activeFreeze.freezeStartDate) / (1000 * 60 * 60 * 24));
+    const actualDays = getDurationBetween(activeFreeze.freezeStartDate, now);
 
-    const newEndDate = new Date(membership.endDate);
-    newEndDate.setDate(newEndDate.getDate() + actualDays);
+    const newEndDate = addDuration(membership.endDate, actualDays);
 
     await prisma.membershipFreeze.update({
       where: { id: activeFreeze.id },
@@ -350,7 +362,6 @@ const adminForceUnfreeze = async (req, res) => {
       data: {
         status: 'ACTIVE',
         endDate: newEndDate,
-        totalFreezeDaysUsed: { increment: actualDays },
       },
       include: {
         user: { select: { name: true, email: true } },

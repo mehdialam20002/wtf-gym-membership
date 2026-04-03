@@ -49,7 +49,6 @@ export default function UserDashboard() {
   };
 
   const handleUnfreeze = async (membershipId) => {
-    if (!confirm('Are you sure you want to unfreeze? Your membership will resume.')) return;
     try {
       const res = await api.post(`/memberships/${membershipId}/unfreeze`);
       showMessage(`Unfrozen! Extended by ${res.data.actualFreezeDays} days. New expiry: ${new Date(res.data.newEndDate).toLocaleDateString('en-IN')}`);
@@ -61,7 +60,6 @@ export default function UserDashboard() {
   };
 
   const handleCancelFreeze = async (freezeId) => {
-    if (!confirm('Cancel this scheduled freeze?')) return;
     try {
       await api.post(`/memberships/cancel/${freezeId}`);
       showMessage('Scheduled freeze cancelled');

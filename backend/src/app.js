@@ -51,6 +51,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Config endpoint (tells frontend about test mode)
+app.get('/api/config', (req, res) => {
+  res.json({ testMode: process.env.TEST_MODE === 'true' });
+});
+
 // Routes — authLimiter only on login endpoints, not all admin routes
 app.use('/api/admin/login', authLimiter);
 app.use('/api/admin', authRoutes);

@@ -53,6 +53,10 @@ export default function PlanForm({ plan, onSubmit, onCancel, loading }) {
     if (!form.durationDays || Number(form.durationDays) < 1) { toast.error('Duration must be at least 1 day'); return; }
     if (!form.price) { toast.error('Price is required'); return; }
     if (cleanBenefits.length === 0) { toast.error('Add at least one benefit'); return; }
+    if (Number(form.maxFreezeDays) > Number(form.durationDays)) {
+      toast.error(`Max freeze days (${form.maxFreezeDays}) cannot exceed plan duration (${form.durationDays} days)`);
+      return;
+    }
 
     await onSubmit({
       name: form.name.trim(),
@@ -159,7 +163,11 @@ export default function PlanForm({ plan, onSubmit, onCancel, loading }) {
               className={inp}
               min="0"
             />
-            <p className="text-gray-400 text-xs mt-1">Total freeze days allowed</p>
+            <p className={`text-xs mt-1 ${Number(form.maxFreezeDays) > Number(form.durationDays) ? 'text-red-500 font-semibold' : 'text-gray-400'}`}>
+              {Number(form.maxFreezeDays) > Number(form.durationDays)
+                ? `Cannot exceed plan duration (${form.durationDays} days)`
+                : `Total freeze days allowed (max: ${form.durationDays || '—'} days)`}
+            </p>
           </div>
         </div>
       </div>

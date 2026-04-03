@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { PrismaClient } = require('@prisma/client');
+const { addDuration, getCronSchedule, isTestMode } = require('./timeHelper');
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ const prisma = new PrismaClient();
 const activateScheduledFreezes = async () => {
   try {
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    if (!isTestMode()) now.setHours(0, 0, 0, 0);
 
     // Find all scheduled freezes that should start today or earlier
     const scheduledFreezes = await prisma.membershipFreeze.findMany({
@@ -38,7 +39,6 @@ const activateScheduledFreezes = async () => {
           where: { id: freeze.membershipId },
           data: {
             status: 'FROZEN',
-            totalFreezeCountUsed: { increment: 1 },
           },
         }),
       ]);
@@ -74,8 +74,7 @@ const autoUnfreeze = async () => {
       const actualDays = freeze.requestedDays;
 
       // TC4 + TC10: Extend membership end date AFTER freeze completes
-      const newEndDate = new Date(freeze.membership.endDate);
-      newEndDate.setDate(newEndDate.getDate() + actualDays);
+      const newEndDate = addDuration(freeze.membership.endDate, actualDays);
 
       await prisma.$transaction([
         prisma.membershipFreeze.update({
@@ -90,7 +89,6 @@ const autoUnfreeze = async () => {
           data: {
             status: 'ACTIVE',
             endDate: newEndDate,
-            totalFreezeDaysUsed: { increment: actualDays },
           },
         }),
       ]);
@@ -130,16 +128,16 @@ const expireMemberships = async () => {
 
 // ─── Start all cron jobs ───
 const startFreezeCron = () => {
-  // Run every day at 00:05 - activate scheduled freezes
-  cron.schedule('5 0 * * *', activateScheduledFreezes);
+  // In test mode: every minute | Normal: daily at scheduled times
+  cron.schedule(getCronSchedule('5 0 * * *'), activateScheduledFreezes);
+  cron.schedule(getCronSchedule('10 0 * * *'), autoUnfreeze);
+  cron.schedule(getCronSchedule('15 0 * * *'), expireMemberships);
 
-  // Run every day at 00:10 - auto-unfreeze expired freezes
-  cron.schedule('10 0 * * *', autoUnfreeze);
-
-  // Run every day at 00:15 - expire memberships
-  cron.schedule('15 0 * * *', expireMemberships);
-
-  console.log('[CRON] Freeze cron jobs scheduled');
+  if (isTestMode()) {
+    console.log('[CRON] TEST MODE: Cron jobs running every minute (1 day = 1 minute)');
+  } else {
+    console.log('[CRON] Freeze cron jobs scheduled (daily)');
+  }
 };
 
 module.exports = { startFreezeCron, activateScheduledFreezes, autoUnfreeze, expireMemberships };

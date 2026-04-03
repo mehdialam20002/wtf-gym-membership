@@ -67,7 +67,7 @@ export default function DashboardPage() {
       await deletePlan(deletePlanConfirm.id);
       toast.success('Plan deleted');
       setDeletePlanConfirm(null);
-    } catch { toast.error('Failed to delete'); }
+    } catch (err) { toast.error(err.response?.data?.error || 'Failed to delete plan'); }
   };
 
   const handleTogglePlanVisibility = async (plan) => {
@@ -107,7 +107,7 @@ export default function DashboardPage() {
       await deleteGym(deleteGymConfirm.id);
       toast.success('Gym deleted');
       setDeleteGymConfirm(null);
-    } catch { toast.error('Failed to delete'); }
+    } catch (err) { toast.error(err.response?.data?.error || 'Failed to delete gym'); }
   };
 
   const handleToggleGymActive = async (gym) => {

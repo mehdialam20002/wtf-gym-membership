@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
+const { addDuration } = require('../utils/timeHelper');
 
 const prisma = new PrismaClient();
 
@@ -47,8 +48,7 @@ const purchaseMembership = async (req, res) => {
     }
 
     const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + plan.durationDays);
+    const endDate = addDuration(startDate, plan.durationDays);
 
     const membership = await prisma.membership.create({
       data: {
@@ -218,8 +218,7 @@ const adminCreateMembership = async (req, res) => {
     }
 
     const startDate = startStr ? new Date(startStr) : new Date();
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + plan.durationDays);
+    const endDate = addDuration(startDate, plan.durationDays);
 
     const membership = await prisma.membership.create({
       data: {

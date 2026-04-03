@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useTestMode from '../../hooks/useTestMode';
 
 function formatDateInput(date) {
   return date.toISOString().split('T')[0];
@@ -11,6 +12,7 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { testMode, unit, unitFull } = useTestMode();
 
   useEffect(() => {
     if (isOpen) {
@@ -27,8 +29,9 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
   const today = formatDateInput(new Date());
 
   // Calculate freeze end date for preview
+  const msPerUnit = testMode ? 60 * 1000 : 24 * 60 * 60 * 1000;
   const freezeEndDate = startDate
-    ? formatDateInput(new Date(new Date(startDate).getTime() + freezeDays * 24 * 60 * 60 * 1000))
+    ? formatDateInput(new Date(new Date(startDate).getTime() + freezeDays * msPerUnit))
     : '';
 
   const handleSubmit = async (e) => {
@@ -36,12 +39,12 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
     setError('');
 
     if (freezeDays > maxDaysRemaining) {
-      setError(`Maximum ${maxDaysRemaining} freeze days remaining`);
+      setError(`Maximum ${maxDaysRemaining} freeze ${unitFull} remaining`);
       return;
     }
 
     if (freezeDays < 1) {
-      setError('Minimum 1 day freeze required');
+      setError(`Minimum 1 ${testMode ? 'minute' : 'day'} freeze required`);
       return;
     }
 
@@ -89,7 +92,7 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
                 </p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Days Remaining</p>
+                <p className="text-gray-500 text-xs">{testMode ? 'Minutes' : 'Days'} Remaining</p>
                 <p className="text-neon-green font-bold">{maxDaysRemaining} of {membership.plan.maxFreezeDays}</p>
               </div>
             </div>
@@ -119,24 +122,34 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
 
               <div>
                 <label className="block text-gray-300 text-sm mb-2">
-                  Number of Days <span className="text-gray-500">(max {maxDaysRemaining})</span>
+                  Number of {testMode ? 'Minutes' : 'Days'} <span className="text-gray-500">(max {maxDaysRemaining})</span>
                 </label>
                 <input
                   type="number"
                   value={freezeDays}
-                  min={1}
-                  max={maxDaysRemaining}
-                  onChange={e => setFreezeDays(e.target.value)}
-                  className="w-full bg-dark-700 border border-dark-500 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-neon-green transition-colors"
+                  onChange={e => {
+                    const val = e.target.value;
+                    setFreezeDays(val);
+                    if (val > maxDaysRemaining) {
+                      setError(`You only have ${maxDaysRemaining} freeze ${unitFull} remaining out of ${membership.plan.maxFreezeDays}. You cannot schedule more than ${maxDaysRemaining} ${unitFull}.`);
+                    } else if (val < 1 && val !== '') {
+                      setError(`Minimum 1 ${testMode ? 'minute' : 'day'} freeze required`);
+                    } else {
+                      setError('');
+                    }
+                  }}
+                  className={`w-full bg-dark-700 border rounded-lg px-4 py-3 text-white focus:outline-none transition-colors ${
+                    freezeDays > maxDaysRemaining ? 'border-red-500 focus:border-red-500' : 'border-dark-500 focus:border-neon-green'
+                  }`}
                   required
                 />
                 {/* Slider */}
                 <input
                   type="range"
-                  value={freezeDays}
+                  value={Math.min(freezeDays, maxDaysRemaining)}
                   min={1}
                   max={maxDaysRemaining}
-                  onChange={e => setFreezeDays(e.target.value)}
+                  onChange={e => { setFreezeDays(e.target.value); setError(''); }}
                   className="w-full mt-2 accent-[#39FF14]"
                 />
               </div>
@@ -161,7 +174,7 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
                   <span className="text-gray-500">To:</span>
                   <span className="text-white">{freezeEndDate || '-'}</span>
                   <span className="text-gray-500">Duration:</span>
-                  <span className="text-white">{freezeDays} days</span>
+                  <span className="text-white">{freezeDays} {unitFull}</span>
                   <span className="text-gray-500">Type:</span>
                   <span className={startDate === today ? 'text-neon-green' : 'text-yellow-400'}>
                     {startDate === today ? 'Immediate' : 'Scheduled'}
@@ -179,7 +192,7 @@ export default function FreezeModal({ isOpen, membership, onClose, onSubmit }) {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || freezeDays > maxDaysRemaining || freezeDays < 1}
                   className="flex-1 bg-neon-green text-dark-900 font-bold py-3 rounded-lg hover:shadow-neon-green transition-all disabled:opacity-50"
                 >
                   {loading ? 'Processing...' : 'Confirm Freeze'}

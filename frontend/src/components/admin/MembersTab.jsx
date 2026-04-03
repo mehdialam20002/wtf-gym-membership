@@ -76,7 +76,7 @@ export default function MembersTab({ onForceUnfreeze }) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, email, phone, gym..."
-            className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+            className="w-full pl-10 pr-4 py-2.5 text-sm text-gray-800 border border-gray-200 rounded-lg bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
           />
         </div>
         <div className="flex gap-1.5 flex-wrap">

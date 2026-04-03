@@ -98,6 +98,12 @@ const createPlan = async (req, res) => {
       isVisible, benefits, maxFreezeCount, maxFreezeDays,
     } = req.body;
 
+    const days = parseInt(durationDays);
+    const freezeDays = maxFreezeDays !== undefined ? parseInt(maxFreezeDays) : 0;
+    if (freezeDays > days) {
+      return res.status(400).json({ error: `Max freeze days (${freezeDays}) cannot exceed plan duration (${days} days)` });
+    }
+
     const plan = await prisma.plan.create({
       data: {
         name,
@@ -134,6 +140,12 @@ const updatePlan = async (req, res) => {
       isVisible, benefits, maxFreezeCount, maxFreezeDays,
     } = req.body;
 
+    const finalDuration = durationDays !== undefined ? parseInt(durationDays) : existing.durationDays;
+    const finalFreezeDays = maxFreezeDays !== undefined ? parseInt(maxFreezeDays) : existing.maxFreezeDays;
+    if (finalFreezeDays > finalDuration) {
+      return res.status(400).json({ error: `Max freeze days (${finalFreezeDays}) cannot exceed plan duration (${finalDuration} days)` });
+    }
+
     const plan = await prisma.plan.update({
       where: { id: req.params.id },
       data: {
@@ -161,9 +173,18 @@ const deletePlan = async (req, res) => {
     const existing = await prisma.plan.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Plan not found' });
 
+    // Check if any memberships are using this plan
+    const membershipCount = await prisma.membership.count({ where: { planId: req.params.id } });
+    if (membershipCount > 0) {
+      return res.status(400).json({
+        error: `This plan has ${membershipCount} membership${membershipCount > 1 ? 's' : ''} linked to it. Remove or reassign them before deleting.`,
+      });
+    }
+
     await prisma.plan.delete({ where: { id: req.params.id } });
     res.json({ message: 'Plan deleted successfully' });
   } catch (error) {
+    console.error('Delete plan error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
