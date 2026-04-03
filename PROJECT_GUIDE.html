@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WTF Gyms — Project Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; line-height: 1.7; }
+
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+    background: #0f172a; overflow-y: auto; padding: 20px 0; z-index: 100;
+  }
+  .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid #1e293b; }
+  .sidebar-logo span:first-child { font-size: 22px; font-weight: 900; color: white; }
+  .sidebar-logo span:last-child { font-size: 22px; font-weight: 900; color: #22c55e; }
+  .sidebar-logo p { color: #64748b; font-size: 11px; margin-top: 4px; }
+  .sidebar nav { padding: 12px 0; }
+  .sidebar nav a {
+    display: block; padding: 9px 20px; color: #94a3b8; text-decoration: none;
+    font-size: 13px; font-weight: 500; border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .sidebar nav a:hover, .sidebar nav a.active {
+    color: #22c55e; background: rgba(34,197,94,0.08); border-left-color: #22c55e;
+  }
+  .sidebar nav .section-label {
+    padding: 14px 20px 4px; color: #475569; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .main { margin-left: 240px; padding: 40px; max-width: 960px; }
+
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px; padding: 40px; margin-bottom: 32px; color: white;
+  }
+  .hero h1 { font-size: 32px; font-weight: 900; margin-bottom: 8px; }
+  .hero h1 span { color: #22c55e; }
+  .hero p { color: #94a3b8; font-size: 15px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .badge {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    color: #e2e8f0; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .badge.green { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #4ade80; }
+
+  .part { margin-bottom: 40px; }
+  .part-header {
+    display: flex; align-items: center; gap: 12px;
+    background: white; border-radius: 12px; padding: 16px 20px;
+    margin-bottom: 20px; border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .part-num {
+    width: 36px; height: 36px; border-radius: 10px; background: #0f172a;
+    color: #22c55e; font-weight: 900; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .part-header h2 { font-size: 18px; font-weight: 800; color: #0f172a; }
+  .part-header p { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+  .card {
+    background: white; border-radius: 12px; padding: 24px;
+    border: 1px solid #e2e8f0; margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card h3 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+  .card h4 { font-size: 13px; font-weight: 700; color: #374151; margin: 16px 0 8px; }
+  .card p { font-size: 14px; color: #4b5563; margin-bottom: 8px; }
+
+  pre {
+    background: #0f172a; color: #e2e8f0; border-radius: 10px;
+    padding: 20px; overflow-x: auto; font-size: 13px; line-height: 1.7;
+    margin: 12px 0; border: 1px solid #1e293b;
+  }
+  code { font-family: 'Cascadia Code', 'Consolas', monospace; }
+  pre code { color: #e2e8f0; }
+  .kw { color: #c084fc; } /* keyword */
+  .fn { color: #60a5fa; } /* function */
+  .str { color: #4ade80; } /* string */
+  .cm { color: #64748b; } /* comment */
+  .num { color: #fb923c; } /* number */
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f8fafc; font-weight: 700; color: #374151; text-align: left; padding: 10px 14px; border-bottom: 2px solid #e2e8f0; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #4b5563; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  td code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #dc2626; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  .flow-box {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 12px;
+  }
+  .flow-box .step {
+    display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px;
+  }
+  .flow-box .step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%; background: #0f172a;
+    color: white; font-size: 11px; font-weight: 700; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .step-content { font-size: 13px; color: #374151; }
+  .step-content strong { color: #0f172a; }
+  .arrow { text-align: center; color: #22c55e; font-size: 18px; margin: 4px 0; }
+
+  .q-box {
+    background: white; border-radius: 12px; border: 1px solid #e2e8f0;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .q-header {
+    padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .q-level {
+    padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    white-space: nowrap; margin-top: 2px;
+  }
+  .q-level.basic { background: #dcfce7; color: #15803d; }
+  .q-level.mid { background: #dbeafe; color: #1d4ed8; }
+  .q-level.adv { background: #fce7f3; color: #9d174d; }
+  .q-question { font-weight: 700; font-size: 14px; color: #0f172a; }
+  .q-body { padding: 16px 20px; }
+  .q-body p { font-size: 13px; color: #4b5563; line-height: 1.8; }
+  .q-body ul { margin: 8px 0 8px 16px; }
+  .q-body ul li { font-size: 13px; color: #4b5563; margin-bottom: 4px; }
+
+  .highlight { background: rgba(34,197,94,0.1); border-left: 3px solid #22c55e; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 13px; color: #374151; }
+
+  .file-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .file-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; }
+  .file-item .path { font-family: monospace; font-size: 11px; color: #dc2626; margin-bottom: 4px; }
+  .file-item .desc { font-size: 12px; color: #64748b; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .tag.green { background: #dcfce7; color: #15803d; }
+  .tag.blue { background: #dbeafe; color: #1d4ed8; }
+  .tag.red { background: #fee2e2; color: #dc2626; }
+  .tag.orange { background: #ffedd5; color: #ea580c; }
+  .tag.purple { background: #f3e8ff; color: #7e22ce; }
+
+  .model-card {
+    border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+  }
+  .model-header { background: #0f172a; color: white; padding: 10px 16px; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .model-header span { color: #22c55e; }
+  .model-body { padding: 0; }
+  .model-field { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .model-field:last-child { border-bottom: none; }
+  .field-name { font-weight: 600; color: #0f172a; width: 140px; flex-shrink: 0; font-family: monospace; font-size: 12px; }
+  .field-type { color: #7c3aed; font-family: monospace; font-size: 12px; width: 100px; flex-shrink: 0; }
+  .field-desc { color: #64748b; font-size: 12px; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .grid2, .grid3, .file-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div><span>WTF</span><span>Gyms</span></div>
+    <p>Project Guide</p>
+  </div>
+  <nav>
+    <div class="section-label">Overview</div>
+    <a href="#part1">1. Socho Pehle</a>
+    <a href="#part2">2. Architecture</a>
+    <div class="section-label">Backend</div>
+    <a href="#part3">3. Database Design</a>
+    <a href="#part4">4. API Routes</a>
+    <a href="#part5">5. Auth Flow</a>
+    <div class="section-label">Frontend</div>
+    <a href="#part6">6. Pages & Components</a>
+    <a href="#part7">7. Hooks & State</a>
+    <div class="section-label">Deep Dive</div>
+    <a href="#part8">8. Data Flows</a>
+    <a href="#part9">9. Security</a>
+    <a href="#part10">10. Files Reference</a>
+    <div class="section-label">Interview Prep</div>
+    <a href="#questions">15 Questions</a>
+  </nav>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>WTF Gyms — <span>Project Guide</span></h1>
+    <p>Beginner se Expert tak — Poora project samjho, interview crack karo</p>
+    <div class="badges">
+      <span class="badge green">React 18</span>
+      <span class="badge green">Node.js + Express</span>
+      <span class="badge green">PostgreSQL + Prisma</span>
+      <span class="badge">Tailwind CSS</span>
+      <span class="badge">JWT Auth</span>
+      <span class="badge">Framer Motion</span>
+    </div>
+  </div>
+
+  <!-- PART 1 -->
+  <div class="part" id="part1">
+    <div class="part-header">
+      <div class="part-num">1</div>
+      <div>
+        <h2>Pehle Socho — Project kya hai aur kyun?</h2>
+        <p>Koi bhi project milne pe ye 5 sawaal poochho</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Problem Statement</h3>
+      <p>Ek gym chain hai jiske <strong>Delhi NCR mein 40+ locations</strong> hain. Unhe chahiye:</p>
+      <ul style="margin: 12px 0 0 20px;">
+        <li style="margin-bottom:6px; font-size:14px; color:#374151;"><strong>Public users</strong> — kaunse gyms hain, kahan hain, kaunse plans available hain</li>
+        <li style="margin-bottom:6px; font-size:14px; color:#374151;"><strong>Admin</strong> — gyms add karo, plans banao, gyms ko plans assign karo</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>5 Sawaal Framework (Kisi bhi project ke liye)</h3>
+      <div class="grid2">
+        <div class="flow-box">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><strong>KYA chahiye?</strong><br>Features list, user stories</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><strong>KAUN use karega?</strong><br>User roles (Admin vs Public)</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><strong>DATA kya hai?</strong><br>Database tables (Models)</div></div>
+        </div>
+        <div class="flow-box">
+          <div class="step"><div class="step-num">4</div><div class="step-content"><strong>KAISE milega?</strong><br>API endpoints (Backend)</div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><strong>KAISE dikhega?</strong><br>Pages & Components (Frontend)</div></div>
+          <div class="step"><div class="step-num">→</div><div class="step-content"><strong>Is project ke answers yahan hain →</strong></div></div>
+        </div>
+      </div>
+
+      <h4>Is project ke answers:</h4>
+      <table>
+        <tr><th>Sawaal</th><th>Answer</th></tr>
+        <tr><td>KYA chahiye?</td><td>Gyms browse karna, plans dekhna, admin manage kare</td></tr>
+        <tr><td>KAUN use karega?</td><td>2 types: Public user (koi bhi) + Admin (logged in)</td></tr>
+        <tr><td>DATA kya hai?</td><td>Gyms, Plans, GymPlan (relation), Admin</td></tr>
+        <tr><td>KAISE milega?</td><td>REST API — Express + Node.js</td></tr>
+        <tr><td>KAISE dikhega?</td><td>React website with Tailwind CSS</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="part" id="part2">
+    <div class="part-header">
+      <div class="part-num">2</div>
+      <div>
+        <h2>Project Architecture — Poora Structure</h2>
+        <p>Frontend + Backend + Database kaise connect hain</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Folder Structure</h3>
+      <pre><code>gym-platform/
+├── <span class="str">frontend/</span>          ← React app (jo browser mein dikhta hai)
+│   ├── src/
+│   │   ├── pages/         ← Full pages (LandingPage, GymDetailPage...)
+│   │   ├── components/    ← Reusable UI parts (GymCard, Modal...)
+│   │   ├── hooks/         ← Data fetching (useGyms, usePlans)
+│   │   ├── services/      ← API connection (axios setup)
+│   │   ├── context/       ← Global state (AuthContext)
+│   │   └── App.jsx        ← Routes yahan define hoti hain
+│
+├── <span class="str">backend/</span>           ← Node.js server (data provide karta hai)
+│   ├── src/
+│   │   ├── routes/        ← URL paths define hote hain
+│   │   ├── controllers/   ← Logic likhte hain (kya karna hai)
+│   │   ├── middleware/    ← Auth check, rate limiting
+│   │   └── app.js         ← Server start hota hai yahan
+│   └── prisma/
+│       └── schema.prisma  ← Database tables define hoti hain
+</code></pre>
+    </div>
+
+    <div class="card">
+      <h3>Technology Stack — Kya Kya Use Kiya aur Kyun</h3>
+      <table>
+        <tr><th>Part</th><th>Technology</th><th>Kyun?</th></tr>
+        <tr><td>Frontend UI</td><td><span class="tag blue">React 18</span></td><td>Component-based, fast, most popular</td></tr>
+        <tr><td>Styling</td><td><span class="tag blue">Tailwind CSS</span></td><td>Utility classes, rapid development</td></tr>
+        <tr><td>Animations</td><td><span class="tag blue">Framer Motion</span></td><td>Smooth transitions easily</td></tr>
+        <tr><td>Frontend Routing</td><td><span class="tag blue">React Router v6</span></td><td>SPA navigation</td></tr>
+        <tr><td>Backend</td><td><span class="tag green">Node.js + Express</span></td><td>JavaScript everywhere, simple REST API</td></tr>
+        <tr><td>Database</td><td><span class="tag green">PostgreSQL</span></td><td>Relational data (gyms ↔ plans)</td></tr>
+        <tr><td>ORM</td><td><span class="tag green">Prisma</span></td><td>Type-safe DB queries, easy migrations</td></tr>
+        <tr><td>Auth</td><td><span class="tag orange">JWT</span></td><td>Stateless, scalable, no session storage</td></tr>
+        <tr><td>Password</td><td><span class="tag orange">Bcrypt</span></td><td>Secure one-way hashing</td></tr>
+        <tr><td>HTTP Client</td><td><span class="tag purple">Axios</span></td><td>API calls from frontend with interceptors</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="part" id="part3">
+    <div class="part-header">
+      <div class="part-num">3</div>
+      <div>
+        <h2>Database Design — Sabse Important Part</h2>
+        <p>Tables kaise banate hain aur why</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Pehle socho — Kya kya data store karna hai?</h3>
+      <pre><code><span class="cm">// Simple list banao pehle:</span>
+Gym ka data:   naam, city, address, phone, hours, amenities, rating
+Plan ka data:  naam, category (monthly/quarterly), price, benefits
+Relation:      Ek gym ke paas multiple plans hain
+               Ek plan multiple gyms pe assign ho sakta hai
+Admin ka data: email, password</code></pre>
+    </div>
+
+    <div class="model-card">
+      <div class="model-header">📋 <span>Admin</span> Table</div>
+      <div class="model-body">
+        <div class="model-field"><span class="field-name">id</span><span class="field-type">String</span><span class="field-desc">Auto-generated unique ID (CUID)</span></div>
+        <div class="model-field"><span class="field-name">email</span><span class="field-type">String</span><span class="field-desc">Login email — unique constraint</span></div>
+        <div class="model-field"><span class="field-name">password</span><span class="field-type">String</span><span class="field-desc">Bcrypt hashed — kabhi plain text nahi</span></div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-header">🏋️ <span>Gym</span> Table</div>
+      <div class="model-body">
+        <div class="model-field"><span class="field-name">id</span><span class="field-type">String</span><span class="field-desc">Auto-generated unique ID</span></div>
+        <div class="model-field"><span class="field-name">name</span><span class="field-type">String</span><span class="field-desc">"WTF Gym Noida Sector 18"</span></div>
+        <div class="model-field"><span class="field-name">slug</span><span class="field-type">String</span><span class="field-desc">"wtf-gym-noida-sector-18" — URL mein use hota hai (unique)</span></div>
+        <div class="model-field"><span class="field-name">area</span><span class="field-type">String</span><span class="field-desc">"Sector 18"</span></div>
+        <div class="model-field"><span class="field-name">city</span><span class="field-type">String</span><span class="field-desc">"Noida" (default)</span></div>
+        <div class="model-field"><span class="field-name">address</span><span class="field-type">String</span><span class="field-desc">Full address</span></div>
+        <div class="model-field"><span class="field-name">phone</span><span class="field-type">String</span><span class="field-desc">Contact number</span></div>
+        <div class="model-field"><span class="field-name">hours</span><span class="field-type">String</span><span class="field-desc">"06:00 AM - 10:00 PM"</span></div>
+        <div class="model-field"><span class="field-name">rating</span><span class="field-type">Float</span><span class="field-desc">4.8 — hygiene/quality rating</span></div>
+        <div class="model-field"><span class="field-name">amenities</span><span class="field-type">JSON</span><span class="field-desc">["WiFi", "AC", "Lockers"] — dynamic array</span></div>
+        <div class="model-field"><span class="field-name">isActive</span><span class="field-type">Boolean</span><span class="field-desc">true/false — show/hide on website</span></div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-header">💳 <span>Plan</span> Table</div>
+      <div class="model-body">
+        <div class="model-field"><span class="field-name">id</span><span class="field-type">String</span><span class="field-desc">Auto-generated unique ID</span></div>
+        <div class="model-field"><span class="field-name">name</span><span class="field-type">String</span><span class="field-desc">"Basic Monthly Plan"</span></div>
+        <div class="model-field"><span class="field-name">category</span><span class="field-type">Enum</span><span class="field-desc">monthly / quarterly / halfyearly / yearly</span></div>
+        <div class="model-field"><span class="field-name">price</span><span class="field-type">Float</span><span class="field-desc">1500 (base price in ₹)</span></div>
+        <div class="model-field"><span class="field-name">discountedPrice</span><span class="field-type">Float?</span><span class="field-desc">1200 (optional, ? = nullable)</span></div>
+        <div class="model-field"><span class="field-name">isPopular</span><span class="field-type">Boolean</span><span class="field-desc">"Popular" badge dikhata hai</span></div>
+        <div class="model-field"><span class="field-name">isVisible</span><span class="field-type">Boolean</span><span class="field-desc">Public pe dikhao ya nahi</span></div>
+        <div class="model-field"><span class="field-name">benefits</span><span class="field-type">JSON</span><span class="field-desc">["Gym Access", "Trainer"] — dynamic array</span></div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-header">🔗 <span>GymPlan</span> Junction Table (Many-to-Many)</div>
+      <div class="model-body">
+        <div class="model-field"><span class="field-name">gymId</span><span class="field-type">String</span><span class="field-desc">Gym ki foreign key</span></div>
+        <div class="model-field"><span class="field-name">planId</span><span class="field-type">String</span><span class="field-desc">Plan ki foreign key</span></div>
+        <div class="model-field"><span class="field-name">(gymId+planId)</span><span class="field-type">UNIQUE</span><span class="field-desc">Same plan twice nahi add ho sakta ek gym mein</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Kyun Junction Table? — Many-to-Many Relation</h3>
+      <div class="grid2">
+        <div>
+          <h4 style="color: #dc2626;">❌ Wrong Approach</h4>
+          <pre><code><span class="cm">// Gym table mein planIds store karna</span>
+Gym: {
+  plans: ["plan1", "plan2"]  <span class="cm">// BAD!</span>
+}
+<span class="cm">// Problem: Plan update karo →
+// Har gym mein update karna padega</span></code></pre>
+        </div>
+        <div>
+          <h4 style="color: #16a34a;">✅ Right Approach</h4>
+          <pre><code><span class="cm">// Alag junction table</span>
+GymPlan: { gymId, planId }
+
+<span class="cm">// Plan price update karo →
+// Automatically sab gyms pe reflect!
+// Data ek jagah, relation alag</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="part" id="part4">
+    <div class="part-header">
+      <div class="part-num">4</div>
+      <div>
+        <h2>API Routes — Backend Endpoints</h2>
+        <p>Frontend kya maangta hai, backend kya deta hai</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Auth Routes — <code>/api/admin/</code></h3>
+      <table>
+        <tr><th>Method</th><th>URL</th><th>Auth?</th><th>Kya karta hai</th></tr>
+        <tr><td><span class="tag green">POST</span></td><td><code>/api/admin/login</code></td><td>❌</td><td>Email+Password → JWT token milta hai</td></tr>
+        <tr><td><span class="tag blue">GET</span></td><td><code>/api/admin/me</code></td><td>✅ JWT</td><td>Apna admin data dekho</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Gym Routes — <code>/api/gyms/</code></h3>
+      <table>
+        <tr><th>Method</th><th>URL</th><th>Auth?</th><th>Kya karta hai</th></tr>
+        <tr><td><span class="tag blue">GET</span></td><td><code>/api/gyms/</code></td><td>❌ Public</td><td>Sabhi active gyms (website ke liye)</td></tr>
+        <tr><td><span class="tag blue">GET</span></td><td><code>/api/gyms/all</code></td><td>✅ Admin</td><td>Sabhi gyms (inactive bhi)</td></tr>
+        <tr><td><span class="tag blue">GET</span></td><td><code>/api/gyms/:slug/details</code></td><td>❌ Public</td><td>Ek gym full detail (plans ke saath)</td></tr>
+        <tr><td><span class="tag green">POST</span></td><td><code>/api/gyms/</code></td><td>✅ Admin</td><td>Naya gym banao</td></tr>
+        <tr><td><span class="tag orange">PUT</span></td><td><code>/api/gyms/:id</code></td><td>✅ Admin</td><td>Gym update karo</td></tr>
+        <tr><td><span class="tag orange">PUT</span></td><td><code>/api/gyms/:id/plans</code></td><td>✅ Admin</td><td>Gym ko plans assign karo</td></tr>
+        <tr><td><span class="tag red">DELETE</span></td><td><code>/api/gyms/:id</code></td><td>✅ Admin</td><td>Gym delete karo</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Plan Routes — <code>/api/plans/</code></h3>
+      <table>
+        <tr><th>Method</th><th>URL</th><th>Auth?</th><th>Kya karta hai</th></tr>
+        <tr><td><span class="tag blue">GET</span></td><td><code>/api/plans/</code></td><td>❌ Public</td><td>Visible plans (filter: ?gymId=, ?category=)</td></tr>
+        <tr><td><span class="tag blue">GET</span></td><td><code>/api/plans/all</code></td><td>✅ Admin</td><td>Sabhi plans with gym count</td></tr>
+        <tr><td><span class="tag green">POST</span></td><td><code>/api/plans/</code></td><td>✅ Admin</td><td>Naya plan banao</td></tr>
+        <tr><td><span class="tag orange">PUT</span></td><td><code>/api/plans/:id</code></td><td>✅ Admin</td><td>Plan update karo</td></tr>
+        <tr><td><span class="tag orange">PUT</span></td><td><code>/api/plans/:id/gyms</code></td><td>✅ Admin</td><td>Plan ko gyms assign karo</td></tr>
+        <tr><td><span class="tag red">DELETE</span></td><td><code>/api/plans/:id</code></td><td>✅ Admin</td><td>Plan delete karo</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Controller Example — Gym Create Karna</h3>
+      <pre><code><span class="cm">// backend/src/controllers/gymController.js</span>
+
+<span class="kw">async function</span> <span class="fn">createGym</span>(req, res) {
+  <span class="cm">// 1. Frontend se data lo</span>
+  <span class="kw">const</span> { name, area, city, address, phone, hours } = req.body;
+
+  <span class="cm">// 2. Slug banao (URL-friendly naam)</span>
+  <span class="kw">const</span> slug = name.toLowerCase().replace(<span class="str">/\s+/g</span>, <span class="str">'-'</span>);
+
+  <span class="cm">// 3. Database mein save karo</span>
+  <span class="kw">const</span> gym = <span class="kw">await</span> prisma.gym.<span class="fn">create</span>({
+    data: { name, slug, area, city, address, phone, hours }
+  });
+
+  <span class="cm">// 4. Frontend ko response bhejo</span>
+  res.status(<span class="num">201</span>).json(gym);
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <h3>Transaction Example — Plan-Gym Assignment</h3>
+      <pre><code><span class="cm">// PUT /api/plans/:id/gyms</span>
+<span class="kw">async function</span> <span class="fn">updatePlanGyms</span>(req, res) {
+  <span class="kw">const</span> { id } = req.params;         <span class="cm">// plan ID</span>
+  <span class="kw">const</span> { gymIds } = req.body;       <span class="cm">// [gymId1, gymId2, ...]</span>
+
+  <span class="cm">// Transaction: ya dono ho ya kuch nahi</span>
+  <span class="kw">await</span> prisma.<span class="fn">$transaction</span>([
+    <span class="cm">// Step 1: Purane assignments delete karo</span>
+    prisma.gymPlan.<span class="fn">deleteMany</span>({ where: { planId: id } }),
+
+    <span class="cm">// Step 2: Nayi assignments banao</span>
+    prisma.gymPlan.<span class="fn">createMany</span>({
+      data: gymIds.<span class="fn">map</span>(gymId => ({ planId: id, gymId }))
+    })
+  ]);
+
+  res.json({ success: <span class="kw">true</span> });
+}</code></pre>
+      <div class="highlight">
+        <strong>Kyun Transaction?</strong> Agar Step 1 success ho aur Step 2 fail ho → gym ke koi plans nahi! Transaction ensure karta hai: ya dono steps complete honge, ya kuch bhi nahi.
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 5 -->
+  <div class="part" id="part5">
+    <div class="part-header">
+      <div class="part-num">5</div>
+      <div>
+        <h2>Authentication Flow — Login kaise kaam karta hai</h2>
+        <p>JWT tokens se stateless auth</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step-by-Step Auth Flow</h3>
+      <div class="flow-box">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Admin login karta hai</strong> — Email + Password form submit karta hai</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Backend verify karta hai</strong> — bcrypt.compare(input, hashedPassword)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><strong>JWT token generate hota hai</strong> — jwt.sign({ adminId }, secret, { expiresIn: '7d' })</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Frontend store karta hai</strong> — localStorage.setItem('gym_admin_token', token)</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content"><strong>Agle requests mein</strong> — Axios interceptor: Authorization: Bearer &lt;token&gt; header add karta hai</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-content"><strong>Backend verify karta hai</strong> — protect middleware: jwt.verify(token, secret)</div></div>
+      </div>
+
+      <pre><code><span class="cm">// Middleware — JWT verify karo</span>
+<span class="kw">function</span> <span class="fn">protect</span>(req, res, next) {
+  <span class="kw">const</span> token = req.headers.authorization?.split(<span class="str">' '</span>)[<span class="num">1</span>];
+  <span class="kw">if</span> (!token) <span class="kw">return</span> res.status(<span class="num">401</span>).json({ error: <span class="str">'No token'</span> });
+
+  <span class="kw">const</span> decoded = jwt.<span class="fn">verify</span>(token, process.env.JWT_SECRET);
+  req.admin = decoded;  <span class="cm">// admin info agle function ko milegi</span>
+  <span class="fn">next</span>();             <span class="cm">// agle function pe jaao</span>
+}
+
+<span class="cm">// Use karo is tarah:</span>
+router.<span class="fn">post</span>(<span class="str">'/'</span>, protect, createGym);
+<span class="cm">// pehle protect chalega, phir createGym</span></code></pre>
+    </div>
+
+    <div class="card">
+      <h3>JWT Token kya hota hai?</h3>
+      <pre><code><span class="cm">// JWT = 3 parts, Base64 encoded, dot se separate</span>
+eyJhbGciOiJIUzI1NiJ9      ← Header (algorithm: HS256)
+.eyJhZG1pbklkIjoiMSJ9     ← Payload (data: adminId)
+.xyzABC123signature        ← Signature (tamper-proof)
+
+<span class="cm">// Payload mein store karo:</span>
+{ adminId: <span class="str">'abc123'</span>, iat: <span class="num">1234567</span>, exp: <span class="num">1241234</span> }
+<span class="cm">// iat = issued at, exp = expires at</span>
+
+<span class="cm">// Koi bhi decode kar sakta hai payload ko
+// Lekin signature fake nahi kar sakta (secret key chahiye)
+// Isliye sensitive data (password) kabhi payload mein mat rakho!</span></code></pre>
+    </div>
+  </div>
+
+  <!-- PART 6 -->
+  <div class="part" id="part6">
+    <div class="part-header">
+      <div class="part-num">6</div>
+      <div>
+        <h2>Frontend — Pages & Components</h2>
+        <p>User kya dekhta hai aur kaise</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>App Routes (App.jsx)</h3>
+      <pre><code><span class="str">/</span>                → LandingPage      (public)
+<span class="str">/gym/:slug</span>       → GymDetailPage    (public)
+<span class="str">/admin/login</span>     → LoginPage        (public)
+<span class="str">/admin</span>           → DashboardPage    (🔒 login required)</code></pre>
+    </div>
+
+    <div class="card">
+      <h3>User Journey — Public Side</h3>
+      <div class="flow-box">
+        <div class="step"><div class="step-num">1</div><div class="step-content">User <strong>LandingPage</strong> pe aaya → useGyms() → GET /api/gyms → gyms list</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>GymCard</strong> grid mein render hote hain (naam, area, rating, plans count)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content">User ek gym pe click karta hai → <strong>GymDetailPage</strong> load hoti hai</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content">useEffect → GET /api/gyms/slug/details → full gym data (plans ke saath)</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content"><strong>Left:</strong> Gym info (naam, address, hours, amenities) | <strong>Right:</strong> Plans panel (scrollable)</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-content">User "Buy Now" pe click karta hai → <strong>tel: link → phone dial</strong> hota hai</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Admin Journey</h3>
+      <div class="flow-box">
+        <div class="step"><div class="step-num">1</div><div class="step-content">Admin <strong>/admin/login</strong> pe jaata hai → email+password → JWT token milta hai</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>DashboardPage</strong> load hoti hai (ProtectedRoute check karta hai token)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content">Do tabs: <strong>Plans</strong> (PlansTable) | <strong>Gyms</strong> (GymsTable)</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content">Plans mein: Create, Edit, Delete, Toggle Visibility, Assign Gyms, Edit Benefits</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content">Gyms mein: Create, Edit, Delete, Toggle Active, Assign Plans</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>GymDetailPage — Two Column Layout</h3>
+      <pre><code><span class="cm">// Left column: Gym info (sticky)</span>
+→ Naam, Rating, Address, Navigation button
+→ Feature tags (Certified Trainers, Premium Equipment)
+→ Hours accordion (click to expand)
+→ Phone number
+→ "What's Included" grid (icons)
+→ Amenities tags
+
+<span class="cm">// Right column: Plans panel (sticky + scrollable inside)</span>
+→ Header: "Plan Name" | "Price" (dark bar)
+→ Each PlanCard:
+   - Colored dot + Plan name + Price
+   - Period pill (Monthly/Quarterly...) + Per day cost
+   - Benefits list (always visible, no dropdown)
+   - Buy Now button (phone call)</code></pre>
+    </div>
+  </div>
+
+  <!-- PART 7 -->
+  <div class="part" id="part7">
+    <div class="part-header">
+      <div class="part-num">7</div>
+      <div>
+        <h2>Hooks & State Management</h2>
+        <p>Data kaise fetch hota hai aur kahan store hota hai</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Custom Hook — useGyms()</h3>
+      <pre><code><span class="cm">// frontend/src/hooks/useGyms.js</span>
+
+<span class="kw">function</span> <span class="fn">useGyms</span>(adminMode = <span class="kw">false</span>) {
+  <span class="kw">const</span> [gyms, setGyms] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> url = adminMode ? <span class="str">'/gyms/all'</span> : <span class="str">'/gyms'</span>;
+    api.<span class="fn">get</span>(url).<span class="fn">then</span>(r => {
+      <span class="fn">setGyms</span>(r.data);
+      <span class="fn">setLoading</span>(<span class="kw">false</span>);
+    });
+  }, [adminMode]);
+
+  <span class="kw">async function</span> <span class="fn">createGym</span>(data) {
+    <span class="kw">const</span> res = <span class="kw">await</span> api.<span class="fn">post</span>(<span class="str">'/gyms'</span>, data);
+    <span class="fn">setGyms</span>(prev => [...prev, res.data]); <span class="cm">// No refetch — local update</span>
+    <span class="kw">return</span> res.data;
+  }
+
+  <span class="kw">return</span> { gyms, loading, createGym, <span class="cm">/* updateGym, deleteGym... */</span> };
+}
+
+<span class="cm">// Koi bhi component use kar sakta hai:</span>
+<span class="kw">const</span> { gyms, loading } = <span class="fn">useGyms</span>(<span class="kw">false</span>);   <span class="cm">// public</span>
+<span class="kw">const</span> { gyms, loading } = <span class="fn">useGyms</span>(<span class="kw">true</span>);    <span class="cm">// admin</span></code></pre>
+      <div class="highlight">
+        <strong>Kyun Custom Hook?</strong> Code reuse. LandingPage aur DashboardPage dono gyms chahiye. Hook ke bina same code dono jagah likhna padta. Hook ek jagah likho, kahin bhi use karo.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Axios Setup — api.js</h3>
+      <pre><code><span class="cm">// frontend/src/services/api.js</span>
+
+<span class="kw">const</span> api = axios.<span class="fn">create</span>({ baseURL: <span class="str">'/api'</span> });
+
+<span class="cm">// Request interceptor: Har request mein token add karo</span>
+api.interceptors.request.<span class="fn">use</span>(config => {
+  <span class="kw">const</span> token = localStorage.<span class="fn">getItem</span>(<span class="str">'gym_admin_token'</span>);
+  <span class="kw">if</span> (token) config.headers.Authorization = <span class="str">`Bearer ${token}`</span>;
+  <span class="kw">return</span> config;
+});
+
+<span class="cm">// Response interceptor: 401 aaye to logout karo</span>
+api.interceptors.response.<span class="fn">use</span>(
+  res => res,  <span class="cm">// success: as-is return karo</span>
+  err => {
+    <span class="kw">if</span> (err.response?.status === <span class="num">401</span>) {
+      localStorage.<span class="fn">removeItem</span>(<span class="str">'gym_admin_token'</span>);
+      window.location.href = <span class="str">'/admin/login'</span>;
+    }
+    <span class="kw">return</span> Promise.<span class="fn">reject</span>(err);
+  }
+);</code></pre>
+    </div>
+
+    <div class="card">
+      <h3>AuthContext — Global Login State</h3>
+      <pre><code><span class="cm">// App load hote hi check karo: token hai?</span>
+<span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> token = localStorage.<span class="fn">getItem</span>(<span class="str">'gym_admin_token'</span>);
+  <span class="kw">if</span> (token) {
+    api.<span class="fn">get</span>(<span class="str">'/admin/me'</span>)
+      .<span class="fn">then</span>(r => { <span class="fn">setAdmin</span>(r.data); <span class="fn">setIsAuthenticated</span>(<span class="kw">true</span>); })
+      .<span class="fn">catch</span>(() => localStorage.<span class="fn">removeItem</span>(<span class="str">'gym_admin_token'</span>));
+  }
+}, []);
+
+<span class="cm">// Context provide karo poore app ko:</span>
+&lt;AuthContext.Provider value={{ admin, isAuthenticated, login, logout }}&gt;
+  {children}
+&lt;/AuthContext.Provider&gt;</code></pre>
+    </div>
+  </div>
+
+  <!-- PART 8 -->
+  <div class="part" id="part8">
+    <div class="part-header">
+      <div class="part-num">8</div>
+      <div>
+        <h2>Complete Data Flows — End to End</h2>
+        <p>Ek action kya kya steps follow karta hai</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Flow 1: User Gym Page Dekh Raha Hai</h3>
+      <div class="flow-box">
+        <div class="step"><div class="step-num">1</div><div class="step-content">Browser URL: <strong>/gym/wtf-gym-sector-18</strong> → React Router → GymDetailPage load</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content">useEffect runs → <strong>api.get('/gyms/wtf-gym-sector-18/details')</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content">Axios → HTTP GET request backend pe jaata hai</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content">Express Router → <strong>gymController.getGymDetails()</strong> function call hoti hai</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content">Prisma: <strong>SELECT * FROM gyms WHERE slug = '...' + INCLUDE gymPlans → plans → benefits</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-content">Backend → JSON response → React setState → <strong>UI render!</strong></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Flow 2: Admin Plan Bana Raha Hai</h3>
+      <div class="flow-box">
+        <div class="step"><div class="step-num">1</div><div class="step-content">Admin form fill karta hai → "Create Plan" submit</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><strong>api.post('/plans', { name, category, price, benefits })</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content">Axios interceptor → <strong>Authorization: Bearer &lt;token&gt;</strong> header add</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-content">Express → protect middleware → JWT verify → valid! → <strong>createPlan()</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-content">Prisma: <strong>INSERT INTO plans ...</strong> → 201 Created + naya plan</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-content">Frontend hook: <strong>setPlans(prev => [...prev, newPlan])</strong> → Table mein appear!</div></div>
+      </div>
+      <div class="highlight">
+        <strong>No Refetch!</strong> Naya plan API se aaya → directly local state mein add kiya. Full list dobara fetch nahi ki. Ye fast hota hai aur server load kam karta hai.
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 9 -->
+  <div class="part" id="part9">
+    <div class="part-header">
+      <div class="part-num">9</div>
+      <div>
+        <h2>Security Features</h2>
+        <p>Kaise protect kiya hai project ko</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid2">
+        <div>
+          <h3>Password Hashing (Bcrypt)</h3>
+          <pre><code><span class="cm">// Store karte waqt:</span>
+<span class="kw">const</span> hashed = <span class="kw">await</span> bcrypt.<span class="fn">hash</span>(password, <span class="num">10</span>);
+<span class="cm">// 10 = salt rounds (jitna zyada utna secure, utna slow)</span>
+
+<span class="cm">// Verify karte waqt:</span>
+<span class="kw">const</span> ok = <span class="kw">await</span> bcrypt.<span class="fn">compare</span>(input, hashed);
+<span class="cm">// Plain text kabhi database mein nahi jaata!</span></code></pre>
+        </div>
+        <div>
+          <h3>Rate Limiting</h3>
+          <pre><code><span class="cm">// Login pe max 10 attempts/15 min</span>
+<span class="kw">const</span> loginLimiter = <span class="fn">rateLimit</span>({
+  windowMs: <span class="num">15</span> * <span class="num">60</span> * <span class="num">1000</span>,
+  max: <span class="num">10</span>   <span class="cm">// 10 attempts</span>
+});
+
+<span class="cm">// Brute force attacks se bachao
+// 10 wrong → 15 min wait
+// Practically impossible to hack</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Common Security Mistakes se Bachna</h3>
+      <table>
+        <tr><th>Mistake</th><th>Problem</th><th>Is Project Mein</th></tr>
+        <tr><td>Plain text password store karna</td><td>Database leak → sab passwords expose</td><td>✅ Bcrypt hash</td></tr>
+        <tr><td>Token code mein hardcode karna</td><td>GitHub pe visible → hackable</td><td>✅ .env variables</td></tr>
+        <tr><td>SQL injection</td><td>Database hack</td><td>✅ Prisma (parameterized queries)</td></tr>
+        <tr><td>No rate limiting</td><td>Brute force attack</td><td>✅ express-rate-limit</td></tr>
+        <tr><td>No CORS setup</td><td>Any website API call kar sakti hai</td><td>✅ CORS configured</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PART 10 -->
+  <div class="part" id="part10">
+    <div class="part-header">
+      <div class="part-num">10</div>
+      <div>
+        <h2>Files Quick Reference</h2>
+        <p>Kaunsi file mein kya hai</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Backend Files</h3>
+      <div class="file-grid">
+        <div class="file-item"><div class="path">backend/src/app.js</div><div class="desc">Server entry point, middleware setup, routes attach</div></div>
+        <div class="file-item"><div class="path">backend/src/routes/authRoutes.js</div><div class="desc">Login routes (/admin/login, /admin/me)</div></div>
+        <div class="file-item"><div class="path">backend/src/routes/gymRoutes.js</div><div class="desc">Gym CRUD routes</div></div>
+        <div class="file-item"><div class="path">backend/src/routes/planRoutes.js</div><div class="desc">Plan CRUD + gym assignment routes</div></div>
+        <div class="file-item"><div class="path">backend/src/controllers/authController.js</div><div class="desc">Login logic, JWT generate karna</div></div>
+        <div class="file-item"><div class="path">backend/src/controllers/gymController.js</div><div class="desc">Gym CRUD logic, Prisma queries</div></div>
+        <div class="file-item"><div class="path">backend/src/controllers/planController.js</div><div class="desc">Plan CRUD + gym assignment transaction</div></div>
+        <div class="file-item"><div class="path">backend/src/middleware/authMiddleware.js</div><div class="desc">JWT verify (protect function)</div></div>
+        <div class="file-item"><div class="path">backend/prisma/schema.prisma</div><div class="desc">Database schema — sabhi models yahan</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Frontend Files</h3>
+      <div class="file-grid">
+        <div class="file-item"><div class="path">frontend/src/App.jsx</div><div class="desc">All routes define hoti hain</div></div>
+        <div class="file-item"><div class="path">frontend/src/pages/LandingPage.jsx</div><div class="desc">Public homepage</div></div>
+        <div class="file-item"><div class="path">frontend/src/pages/GymDetailPage.jsx</div><div class="desc">Gym profile page (2-column layout)</div></div>
+        <div class="file-item"><div class="path">frontend/src/pages/admin/LoginPage.jsx</div><div class="desc">Admin login form</div></div>
+        <div class="file-item"><div class="path">frontend/src/pages/admin/DashboardPage.jsx</div><div class="desc">Admin panel (Plans + Gyms tabs)</div></div>
+        <div class="file-item"><div class="path">frontend/src/context/AuthContext.jsx</div><div class="desc">Global auth state (isAuthenticated, admin)</div></div>
+        <div class="file-item"><div class="path">frontend/src/services/api.js</div><div class="desc">Axios instance + interceptors</div></div>
+        <div class="file-item"><div class="path">frontend/src/hooks/useGyms.js</div><div class="desc">Gyms data fetch + CRUD operations</div></div>
+        <div class="file-item"><div class="path">frontend/src/hooks/usePlans.js</div><div class="desc">Plans data fetch + CRUD operations</div></div>
+        <div class="file-item"><div class="path">frontend/src/components/landing/GymCard.jsx</div><div class="desc">Gym card UI (landing page grid)</div></div>
+        <div class="file-item"><div class="path">frontend/src/components/landing/GymSection.jsx</div><div class="desc">Gym grid + search + city filter</div></div>
+        <div class="file-item"><div class="path">frontend/src/components/admin/PlansTable.jsx</div><div class="desc">Admin plans table</div></div>
+        <div class="file-item"><div class="path">frontend/src/components/admin/GymsTable.jsx</div><div class="desc">Admin gyms table</div></div>
+        <div class="file-item"><div class="path">frontend/src/components/admin/PlanAssignGyms.jsx</div><div class="desc">Modal: plan ko gyms assign karo</div></div>
+        <div class="file-item"><div class="path">frontend/src/components/admin/BenefitsEditor.jsx</div><div class="desc">Modal: benefits add/remove karo</div></div>
+        <div class="file-item"><div class="path">frontend/tailwind.config.js</div><div class="desc">Custom colors, animations, scrollbar-hide</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="part" id="questions">
+    <div class="part-header">
+      <div class="part-num">?</div>
+      <div>
+        <h2>15 Interview Questions — With Answers</h2>
+        <p>Basic se Advanced tak — is project ke basis pe</p>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level basic">Basic</span>
+        <div class="q-question">Q1: Frontend aur Backend alag kyun rakhe? Ek hi codebase mein kyun nahi?</div>
+      </div>
+      <div class="q-body">
+        <p><strong>Separation of Concerns</strong> — Frontend ka kaam dikhana hai (UI), Backend ka kaam data manage karna hai (logic + database).</p>
+        <ul>
+          <li>Alag teams parallel kaam kar sakti hain</li>
+          <li>Same backend → multiple frontends (website + mobile app)</li>
+          <li>Deploy alag alag ho sakti hain (frontend pe CDN, backend pe server)</li>
+          <li>Security: Database credentials sirf backend pe, browser mein kabhi nahi</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level basic">Basic</span>
+        <div class="q-question">Q2: Slug kya hota hai aur kyun use kiya?</div>
+      </div>
+      <div class="q-body">
+        <p>Slug = URL-friendly version of a name</p>
+        <p><strong>"WTF Gym Noida Sector 18"</strong> → <strong>"wtf-gym-noida-sector-18"</strong></p>
+        <ul>
+          <li><code>/gym/123</code> → Bad: user ko pata nahi kya hai</li>
+          <li><code>/gym/wtf-gym-noida-sector-18</code> → Good: readable + SEO friendly</li>
+          <li>Database mein unique constraint lagaya hai — duplicate slugs nahi ho sakte</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level basic">Basic</span>
+        <div class="q-question">Q3: Amenities aur Benefits JSON mein kyun store kiye? Alag table kyun nahi?</div>
+      </div>
+      <div class="q-body">
+        <p>Simple strings hain, koi relation nahi hai inki kisi doosri table se. Alag table banane ki zarurat nahi thi.</p>
+        <ul>
+          <li><strong>JSON array use karo jab:</strong> Simple list ho, koi relation nahi, fast read chahiye</li>
+          <li><strong>Alag table banao jab:</strong> Benefits ke saath kuch aur data ho (image, icon, link), ya benefits filter/search karne ho</li>
+        </ul>
+        <p>Is case mein: <code>["Gym Access", "Trainer Support"]</code> → JSON kaafi hai</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level basic">Basic</span>
+        <div class="q-question">Q4: isActive aur isVisible mein kya fark hai?</div>
+      </div>
+      <div class="q-body">
+        <p><strong>isActive</strong> → Gym ka flag (gym publicly dikhe ya nahi)</p>
+        <p><strong>isVisible</strong> → Plan ka flag (plan publicly dikhe ya nahi)</p>
+        <p>Dono alag models mein same concept apply kiya. Admin kisi gym ya plan ko temporarily hide kar sakta hai bina delete kiye. Delete permanent hai, hide reversible hai.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level basic">Basic</span>
+        <div class="q-question">Q5: GymPlan junction table kyun chahiye? Direct gym mein plan IDs store karo na?</div>
+      </div>
+      <div class="q-body">
+        <p>Many-to-Many relationship hai. Ek gym ke multiple plans, ek plan multiple gyms pe.</p>
+        <ul>
+          <li><strong>Wrong:</strong> Gym table mein <code>planIds: ["p1","p2"]</code> store karo → Plan price badlo → Har gym mein manually update karna padega</li>
+          <li><strong>Right:</strong> GymPlan junction table → Plan ek jagah update karo → Automatically sab gyms pe reflect</li>
+          <li>Unique constraint: Same plan twice ek gym pe assign nahi ho sakta</li>
+          <li>Cascade delete: Gym delete karo → GymPlan rows automatically delete</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level mid">Intermediate</span>
+        <div class="q-question">Q6: Prisma transaction kyun use kiya plan-gym assignment mein?</div>
+      </div>
+      <div class="q-body">
+        <p><strong>Atomicity</strong> — Ya sab kuch hoga ya kuch nahi (ACID ka 'A')</p>
+        <p><strong>Without transaction:</strong></p>
+        <ul>
+          <li>Step 1: Purane assignments delete ✅</li>
+          <li>Step 2: Nayi assignments create ❌ (error!)</li>
+          <li>Result: Plan ke koi gyms nahi! Broken state.</li>
+        </ul>
+        <p><strong>With transaction:</strong></p>
+        <ul>
+          <li>Step 1 fail ya Step 2 fail → dono rollback</li>
+          <li>Database consistent state mein rehta hai</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level mid">Intermediate</span>
+        <div class="q-question">Q7: Axios interceptors kaise kaam karte hain? Kyun use kiya?</div>
+      </div>
+      <div class="q-body">
+        <p>Interceptors = middleware for HTTP requests/responses</p>
+        <ul>
+          <li><strong>Request interceptor:</strong> Har request se pehle run hota hai → token add karta hai automatically</li>
+          <li><strong>Response interceptor:</strong> Har response ke baad run hota hai → 401 aaye to logout + redirect</li>
+        </ul>
+        <p>Bina interceptors ke: Har API call mein manually token add karna padta, har 401 manually handle karna padta. 50 API calls → 50 jagah same code.</p>
+        <p>Interceptors ke saath: Ek jagah likho, poore app mein apply.</p>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level mid">Intermediate</span>
+        <div class="q-question">Q8: useEffect mein [slug] dependency kyun diya?</div>
+      </div>
+      <div class="q-body">
+        <p><code>useEffect(() => { fetchGym(slug) }, [slug])</code></p>
+        <ul>
+          <li><strong>[] (empty):</strong> Sirf ek baar run hoga (component mount pe) → Wrong! /gym/abc se /gym/xyz navigate karo → naya data nahi aayega</li>
+          <li><strong>[slug]:</strong> Jab bhi slug change ho → effect dobara run hoga → naya gym data fetch hoga</li>
+          <li><strong>no array:</strong> Har render pe run hoga → Infinite loop!</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level mid">Intermediate</span>
+        <div class="q-question">Q9: JWT token localStorage mein store karna safe hai?</div>
+      </div>
+      <div class="q-body">
+        <p>Partially safe. Tradeoff hai:</p>
+        <ul>
+          <li><strong>localStorage risk:</strong> XSS attack mein JavaScript token read kar sakta hai</li>
+          <li><strong>Better option:</strong> HttpOnly Cookie → JavaScript access nahi kar sakta → XSS se safe</li>
+          <li><strong>Is project mein localStorage use kiya</strong> → Simpler implementation, admin-only app mein acceptable</li>
+          <li><strong>Production grade app mein:</strong> HttpOnly cookies prefer karein</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level mid">Intermediate</span>
+        <div class="q-question">Q10: Rate limiting kyun important hai? Sirf login pe kyun alag limit?</div>
+      </div>
+      <div class="q-body">
+        <p>Brute force attacks se bachne ke liye:</p>
+        <ul>
+          <li>Without rate limiting: Script → 1000 passwords/second → account hack possible</li>
+          <li>With 10/15min: Practically impossible</li>
+          <li><strong>Login pe strict (10/15min)</strong> → Sensitive! Wrong password → account compromise risk</li>
+          <li><strong>General API pe loose (100/15min)</strong> → Normal usage support karo, abuse rokko</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level adv">Advanced</span>
+        <div class="q-question">Q11: Is project mein N+1 query problem ho sakti hai? Kahan aur kaise solve karein?</div>
+      </div>
+      <div class="q-body">
+        <p><strong>N+1 problem:</strong> 1 query se gyms lo, phir har gym ke liye alag query plans ke liye → 1 + N queries</p>
+        <p><strong>Is project mein:</strong> Prisma <code>include</code> use kiya → JOIN karta hai → sirf 1 query</p>
+        <pre style="background:#f8fafc; color:#374151; border:1px solid #e2e8f0; font-size:12px; padding:12px; border-radius:8px; margin:8px 0;">prisma.gym.findMany({
+  include: { gymPlans: { include: { plan: true } } }
+})
+// Ek hi query mein sab kuch — N+1 problem nahi!</pre>
+      </div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level adv">Advanced</span>
+        <div class="q-question">Q12: Soft delete vs Hard delete — kya use karna chahiye tha?</div>
+      </div>
+      <div class="q-body">
+        <p><strong>Hard delete</strong> = DELETE FROM table (is project mein use kiya)</p>
+        <p><strong>Soft delete</strong> = isDeleted = true, data rehta hai</p>
+        <ul>
+          <li><strong>Soft delete ke fayde:</strong> History preserve, restore possible, audit trail</li>
+          <li><strong>Is project mein hard delete theek hai kyunki:</strong> Gym business simple, history ki zarurat nahi, complexity badh jaati</li>
+          <li><strong>Soft delete kab use karein:</strong> Financial data, user accounts, compliance-heavy systems</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q13 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level adv">Advanced</span>
+        <div class="q-question">Q13: Agar 1 lakh users ek saath aaye to kya hoga? Kaise handle karein?</div>
+      </div>
+      <div class="q-body">
+        <p>Current architecture: Single server → bottleneck at high load</p>
+        <ul>
+          <li><strong>Load Balancer</strong> → Multiple backend instances</li>
+          <li><strong>Database Read Replicas</strong> → Reads alag server pe, writes master pe</li>
+          <li><strong>Redis Cache</strong> → Gym list frequently accessed → cache 5 min ke liye</li>
+          <li><strong>CDN</strong> → Static assets (JS, CSS, images) edge pe serve karo</li>
+          <li><strong>Stateless JWT</strong> → Is project ka JWT approach horizontally scale kar sakta hai (no session state)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q14 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level adv">Advanced</span>
+        <div class="q-question">Q14: Custom hooks mein error handling kaise improve karein?</div>
+      </div>
+      <div class="q-body">
+        <p>Current: Basic error state. Better approach:</p>
+        <ul>
+          <li><strong>React Query / TanStack Query use karo</strong> → Automatic caching, background refetch, retry logic, loading/error states built-in</li>
+          <li><strong>Error boundaries</strong> → Component crash hone pe fallback UI dikhao</li>
+          <li><strong>Toast notifications</strong> → User ko meaningful error messages</li>
+          <li><strong>Retry logic</strong> → Network error pe automatically retry</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Q15 -->
+    <div class="q-box">
+      <div class="q-header">
+        <span class="q-level adv">Advanced</span>
+        <div class="q-question">Q15: Is project ko production mein deploy kaise karoge?</div>
+      </div>
+      <div class="q-body">
+        <ul>
+          <li><strong>Frontend:</strong> <code>npm run build</code> → Vercel / Netlify (free, CDN included)</li>
+          <li><strong>Backend:</strong> Railway / Render / DigitalOcean → Node.js app</li>
+          <li><strong>Database:</strong> Supabase / Railway PostgreSQL → <code>prisma migrate deploy</code></li>
+          <li><strong>Secrets:</strong> .env file mein → DATABASE_URL, JWT_SECRET (kabhi git mein push mat karo)</li>
+          <li><strong>CI/CD:</strong> GitHub Actions → Push karo → Automatic deploy</li>
+          <li><strong>Admin user:</strong> Seed script se manually create karo (registration page nahi hai intentionally)</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center; padding: 40px 0; color: #94a3b8; font-size: 13px;">
+    <strong style="color:#22c55e;">WTF Gyms</strong> — Delhi NCR's Elite Fitness Network<br>
+    Stack: React + Node.js + Express + PostgreSQL + Prisma + Tailwind CSS
+  </div>
+
+</div>
+
+<script>
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('.part, #questions');
+  const links = document.querySelectorAll('.sidebar nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    links.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>

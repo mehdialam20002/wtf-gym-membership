@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-dark-900 text-white font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(57, 255, 20, 0.4);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(57, 255, 20, 0.7);
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+  }
+
+  .neon-text {
+    color: #39FF14;
+    text-shadow: 0 0 10px #39FF14, 0 0 20px rgba(57,255,20,0.5);
+  }
+
+  .neon-border {
+    border-color: rgba(57, 255, 20, 0.5);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.2), inset 0 0 10px rgba(57, 255, 20, 0.05);
+  }
+
+  .btn-primary {
+    @apply bg-neon-green text-dark-900 font-bold py-3 px-8 rounded-xl transition-all duration-300;
+    box-shadow: 0 0 20px rgba(57,255,20,0.4);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(57,255,20,0.7), 0 0 60px rgba(57,255,20,0.3);
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .btn-ghost {
+    @apply border border-neon-green/50 text-neon-green font-bold py-3 px-8 rounded-xl transition-all duration-300;
+  }
+
+  .btn-ghost:hover {
+    @apply bg-neon-green/10;
+    box-shadow: 0 0 20px rgba(57,255,20,0.3);
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #39FF14 0%, #00FFFF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-mesh {
+    background-image:
+      radial-gradient(at 20% 50%, rgba(57,255,20,0.05) 0%, transparent 50%),
+      radial-gradient(at 80% 20%, rgba(0,255,255,0.05) 0%, transparent 50%),
+      radial-gradient(at 50% 80%, rgba(57,255,20,0.03) 0%, transparent 50%);
+  }
+}

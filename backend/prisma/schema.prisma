@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Gym {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  area        String
+  city        String       @default("Noida")
+  address     String
+  phone       String       @default("")
+  hours       String       @default("06:00 AM - 10:00 PM")
+  rating      Float        @default(5.0)
+  totalSeats  Int          @default(30)
+  seatsLeft   Int          @default(15)
+  amenities   Json
+  category    String       @default("")
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  gymPlans    GymPlan[]
+  memberships Membership[]
+}
+
+model Plan {
+  id              String    @id @default(cuid())
+  name            String
+  category        String    @default("")
+  durationDays    Int
+  price           Float
+  discountedPrice Float?
+  deferred1Price  Float?
+  deferred1Label  String?
+  deferred2Price  Float?
+  deferred2Label  String?
+  deferred3Price  Float?
+  deferred3Label  String?
+  isVisible       Boolean   @default(true)
+  benefits        Json
+  maxFreezeCount  Int       @default(0)
+  maxFreezeDays   Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  gymPlans        GymPlan[]
+  memberships     Membership[]
+}
+
+model GymPlan {
+  id     String @id @default(cuid())
+  gymId  String
+  planId String
+  gym    Gym    @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([gymId, planId])
+}
+
+model User {
+  id          String       @id @default(cuid())
+  name        String
+  email       String       @unique
+  phone       String       @unique
+  password    String
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
+}
+
+model Membership {
+  id                   String             @id @default(cuid())
+  userId               String
+  planId               String
+  gymId                String
+  startDate            DateTime
+  endDate              DateTime
+  originalEndDate      DateTime
+  status               MembershipStatus   @default(ACTIVE)
+  totalFreezeDaysUsed  Int                @default(0)
+  totalFreezeCountUsed Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 Plan               @relation(fields: [planId], references: [id])
+  gym                  Gym                @relation(fields: [gymId], references: [id])
+  freezes              MembershipFreeze[]
+}
+
+model MembershipFreeze {
+  id              String       @id @default(cuid())
+  membershipId    String
+  freezeStartDate DateTime
+  freezeEndDate   DateTime
+  requestedDays   Int
+  actualDays      Int          @default(0)
+  reason          String?
+  status          FreezeStatus @default(SCHEDULED)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  membership      Membership   @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+}
+
+enum MembershipStatus {
+  ACTIVE
+  FROZEN
+  EXPIRED
+  CANCELLED
+}
+
+enum FreezeStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  AUTO_COMPLETED
+  CANCELLED
+}
+
